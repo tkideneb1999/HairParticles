@@ -1,0 +1,52 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Interpolate
+
+struct HairParticleIn
+{
+    int ID;
+    int parentID;
+    int curveID;
+    float3 position;
+    float3 tangent;
+    float2 uv;
+    float length;
+    float factor;
+};
+
+struct HairParticleOut
+{
+    int ID;
+    int curveID;
+    float3 position;
+    float3 tangent;
+    float2 uv;
+    float length;
+    float factor;
+};
+
+RWStructuredBuffer<HairParticleIn> _SimulatedHair;
+RWStructuredBuffer<HairParticleOut> _InterpolatedHair;
+RWStructuredBuffer<int> _IndexBuffer;
+
+RWStructuredBuffer<float2> _HairOffsets;
+RWStructuredBuffer<int> _StartIndices;
+RWStructuredBuffer<int> _CurveIDs;
+
+uint _NumInterpolatedHair;
+uint2 _MaxThreads;
+
+
+[numthreads(8,8,1)]
+void Interpolate (uint3 id : SV_DispatchThreadID)
+{
+    int index = id.x * _MaxThreads.x + id.y;
+    HairParticleIn pIn = _SimulatedHair[index];
+    for (uint i = 0; i < _NumInterpolatedHair; i++)
+    {
+        float3 ov = normalize(float3(pIn.uv, float(pIn.curveID)));
+        float3 normal = cross(ov, pIn.tangent);
+        float3 bitangent = cross(pIn.tangent, normal);
+        float2 offsets = _HairOffsets[i];
+
+    }
+}

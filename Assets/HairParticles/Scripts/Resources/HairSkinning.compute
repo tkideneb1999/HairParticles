@@ -1,0 +1,74 @@
+#pragma kernel HairSkinning
+
+#define MAX_BONES 32
+
+struct SkinnedHairParticle
+{
+	int ID;
+	int rootID;
+	int parentID;
+	int curveID;
+	float3 position;
+	float3 tangent;
+	float3 normal;
+	float2 uv;
+	float length;
+	float factor;
+	int boneIndex0;
+	int boneIndex1;
+	int boneIndex2;
+	int boneIndex3;
+	float4 boneWeights;
+};
+
+struct RenderHairParticle
+{
+	int ID;
+	int parentID;
+	int curveID;
+	float3 position;
+	float3 tangent;
+	float3 normal;
+	float2 uv;
+	float length;
+	float factor;
+};
+
+StructuredBuffer<SkinnedHairParticle> _InParticles;
+RWStructuredBuffer<RenderHairParticle> _OutParticles;
+
+float4x4 _BoneMatrices[MAX_BONES];
+
+[numthreads(32,1,1)]
+void HairSkinning (uint3 id : SV_DispatchThreadID)
+{
+	SkinnedHairParticle shp = _InParticles[id.x];
+
+	//Get Bone Matrices for Vertex
+
+	//Add weighted Matrices together
+	float4 blendPos = float4(0, 0, 0, 0);
+	blendPos += mul(_BoneMatrices[shp.boneIndex0], float4(shp.position, 1)) * shp.boneWeights[0];
+	blendPos += mul(_BoneMatrices[shp.boneIndex1], float4(shp.position, 1)) * shp.boneWeights[1];
+	blendPos += mul(_BoneMatrices[shp.boneIndex2], float4(shp.position, 1)) * shp.boneWeights[2];
+	blendPos += mul(_BoneMatrices[shp.boneIndex3], float4(shp.position, 1)) * shp.boneWeights[3];
+
+	float3 tangent = float3(0, 0, 0);
+	tangent += mul((float3x3)_BoneMatrices[shp.boneIndex0], shp.tangent) * shp.boneWeights[0];
+	tangent += mul((float3x3)_BoneMatrices[shp.boneIndex1], shp.tangent) * shp.boneWeights[1];
+	tangent += mul((float3x3)_BoneMatrices[shp.boneIndex2], shp.tangent) * shp.boneWeights[2];
+	tangent += mul((float3x3)_BoneMatrices[shp.boneIndex3], shp.tangent) * shp.boneWeights[3];
+
+	float3 normal = float3(0, 0, 0);
+	normal += mul((float3x3)_BoneMatrices[shp.boneIndex0], shp.normal) * shp.boneWeights[0];
+	normal += mul((float3x3)_BoneMatrices[shp.boneIndex1], shp.normal) * shp.boneWeights[1];
+	normal += mul((float3x3)_BoneMatrices[shp.boneIndex2], shp.normal) * shp.boneWeights[2];
+	normal += mul((float3x3)_BoneMatrices[shp.boneIndex3], shp.normal) * shp.boneWeights[3];
+
+	//Update tangent with BoneTransformMatrix
+    
+	//Offset Hair Particle
+	_OutParticles[id.x].position = blendPos.xyz;
+	_OutParticles[id.x].tangent = normalize(tangent);
+	_OutParticles[id.x].normal = normalize(normal);
+}

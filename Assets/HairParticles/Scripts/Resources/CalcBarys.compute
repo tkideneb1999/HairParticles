@@ -1,0 +1,63 @@
+
+#pragma kernel CalcBarys
+
+StructuredBuffer<float2> _MeshUVs;
+StructuredBuffer<int>  _MeshIndices;
+
+StructuredBuffer<float2> _RootUVs;
+RWStructuredBuffer<int3> _FaceIndices;
+RWStructuredBuffer<float3> _FaceBarys;
+
+int _NumIndices;
+
+[numthreads(32,1,1)]
+void CalcBarys (uint3 id : SV_DispatchThreadID)
+{
+    float3 rootUV = float3(_RootUVs[id.x], 0);
+
+    int3 faceIndices = int3(0, 0, 0);
+    float3 faceBarys = float3(0, 0, 0);
+    int test = 0;
+
+    [loop]
+    for (int i = 0; i < _NumIndices; i += 3)
+    {
+        int3 indices = int3(_MeshIndices[i], _MeshIndices[i + 1], _MeshIndices[i + 2]) * 1;
+        float3 triUVs0 = float3(_MeshUVs[i], 0);
+        float3 triUVs1 = float3(_MeshUVs[i + 1], 0);
+        float3 triUVs2 = float3(_MeshUVs[i + 2], 0);
+        
+        float3 ab = triUVs1 - triUVs0;
+        float3 ac = triUVs2 - triUVs0;
+        
+        float area2 = max(length(cross(ac, ac)), 0.0000001f);
+        
+        float3 ra = triUVs0 - rootUV;
+        float3 rb = triUVs1 - rootUV;
+        float3 rc = triUVs2 - rootUV;
+        
+        float alpha = length(cross(rb, rc)) / area2;
+        float beta = length(cross(rc, ra)) / area2;
+        float gamma = 1 - alpha - beta;
+        
+        bool alphaInRange = alpha >= 0.0f && alpha <= 1.0f;
+        bool betaInRange = beta >= 0.0f && beta <= 1.0f;
+        bool gammaInRange = gamma >= 0.0f && gamma <= 1.0f;
+        bool inRange = alphaInRange && betaInRange && gammaInRange;
+
+        if (inRange)
+        {
+            faceBarys = float3(alpha, beta, gamma);
+            int3 disp = int3(0, 0, 0);
+            //InterlockedExchange(_FaceIndices[id.x], indices, disp);
+            faceIndices = indices;
+            test = i;
+        }
+        //faceBarys += float3(alpha, beta, gamma) * inRange;
+        //faceIndices += int3(_MeshIndices[i], _MeshIndices[i + 1], _MeshIndices[i + 2]) * inRange;
+        //test += alphaInRange;
+    }
+
+    _FaceBarys[id.x] = faceBarys;
+    _FaceIndices[id.x] = faceIndices;
+}

@@ -1,0 +1,26 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+
+
+struct HairParticle
+{
+    int ID;
+    int parentID;
+    int curveID;
+    float3 position;
+    float3 tangent;
+    float2 uv;
+    float length;
+    float factor;
+};
+RWStructuredBuffer<HairParticle> buffer1;
+RWStructuredBuffer<HairParticle> buffer2;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    
+}

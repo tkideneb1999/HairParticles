@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 6dc358fb955a59e41b391f4e087c52f8
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 01761f29b55342a40b96da0e485b5867, type: 3}
+  mesh: {fileID: -462981019419857548, guid: 0a08925b2350b5148ae51fc95a5a02fb, type: 3}
+  Xmapping: 0
+  invertX: 0
+  Ymapping: 1
+  invertY: 0
+  Zmapping: 2
+  invertZ: 1
+  calcBaryCompute: {fileID: 7200000, guid: 5756766facb8d0545bb32a03b9cc0075, type: 3}
+  useComputeShader: 0

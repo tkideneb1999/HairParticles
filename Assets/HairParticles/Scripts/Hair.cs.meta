@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: bee4d195497bf0948ad055ef50edc175
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - hairAsset: {instanceID: 0}
+  - hairSkinning: {fileID: 7200000, guid: 88a8d48bcd2c81c46bad99c9cbbaf14f, type: 3}
+  - skinnedMeshRenderer: {instanceID: 0}
+  - hairSimulation: {instanceID: 0}
+  - hairMaterial: {fileID: 2100000, guid: 8fa46350ae8e9bb4e978a28b1d9dc40a, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
